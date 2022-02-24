@@ -15,7 +15,7 @@ export default function Home() {
       <Container>
         <Sidebar />
         <ChatRoom />
-        <CreateChatPopUp />
+        {/* <CreateChatPopUp /> */}
       </Container>
     </div>
   );

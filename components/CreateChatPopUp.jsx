@@ -13,7 +13,7 @@ const CreateChatPopUp = () => {
         </SearchBar>
         <ButtonWrap>
           <Button>Cancel</Button>
-          <Button>Apply</Button>
+          <Button apply={true}>Apply</Button>
         </ButtonWrap>
       </PopupWrap>
     </Container>
@@ -34,7 +34,7 @@ const Container = styled.div`
 const PopupWrap = styled.div`
   width: 30rem;
   background-color: #111;
-  height: 30rem;
+  height: 20rem;
   border-radius: 0.3rem;
   padding: 1rem 2rem;
   color: #fff;
@@ -67,5 +67,22 @@ const SearchBar = styled.div`
     }
   }
 `;
-const ButtonWrap = styled.div``;
-const Button = styled.button``;
+const ButtonWrap = styled.div`
+  margin-top: 4rem;
+  width: 100%;
+  display: flex;
+  justify-content: end;
+  gap: 2rem;
+`;
+const Button = styled.button`
+  background-color: ${(props) => (props.apply ? "green" : "red")};
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 3rem;
+  color: #eee;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  &:hover {
+    outline: 0.1rem solid whitesmoke;
+  }
+`;
