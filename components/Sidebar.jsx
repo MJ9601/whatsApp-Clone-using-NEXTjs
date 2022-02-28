@@ -2,13 +2,16 @@ import { Chat, MoreVert, Search } from "@mui/icons-material";
 import { Avatar } from "@mui/material";
 import React from "react";
 import styled from "styled-components";
+import { auth } from "../firebase";
+import { useGlobalState } from "../globalStateProvider";
 import GroupCard from "./GroupCard";
 
 const Sidebar = () => {
+  const [{}, dispatch] = useGlobalState();
   return (
     <Container>
       <Header>
-        <Avatar_ />
+        <Avatar_ onClick={() => auth.signOut()} />
         <div>
           <Chat
             sx={{
@@ -36,7 +39,9 @@ const Sidebar = () => {
         <Search />
         <input type="text" placeholder="Search ..." />
       </SearchBar>
-      <H1>Start New Chat</H1>
+      <H1 onClick={() => dispatch({ type: "SHOW_POPUP_TRUE" })}>
+        Start New Chat
+      </H1>
       <GroupCardWrap>
         <GroupCard />
       </GroupCardWrap>

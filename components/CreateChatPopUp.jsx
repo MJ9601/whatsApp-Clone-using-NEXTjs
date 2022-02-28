@@ -1,19 +1,64 @@
 import { Search } from "@mui/icons-material";
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
+import { useGlobalState } from "../globalStateProvider";
+import {
+  doc,
+  addDoc,
+  collection,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
+import { db } from "../firebase";
 
 const CreateChatPopUp = () => {
+  const [{ user }, dispatch] = useGlobalState();
+  const [reciever, setReciever] = useState("m_javad_96@yahoo.com");
+
+  const createGroup = async () => {
+    if (reciever && user.email != reciever) {
+      await addDoc(collection(db, "chats"), {
+        users: [user.email, reciever],
+      });
+    }
+  };
+
+  const chatAlreadyExists = async (reciever) => {
+    const userChatRef = query(
+      collection(db, "chats"),
+      where("users", "array-contains", user.email)
+    );
+    const chats = [];
+    const querySnapshot = await getDocs(userChatRef);
+    querySnapshot?.forEach((doc) => {
+      chats.push({ ...doc.data(), id: doc.id });
+    });
+    const remainChats = chats.map((chat) => chat?.users.includes(reciever));
+    console.log(remainChats);
+    console.log(reciever);
+  };
+  chatAlreadyExists(reciever);
   return (
     <Container>
       <PopupWrap>
         <h1>start a chat</h1>
         <SearchBar>
           <Search />
-          <input type="text" placeholder="Search .." />
+          <input
+            type="email"
+            placeholder="email ..."
+            value={reciever}
+            onChange={(e) => setReciever(e.target.value)}
+          />
         </SearchBar>
         <ButtonWrap>
-          <Button>Cancel</Button>
-          <Button apply={true}>Apply</Button>
+          <Button onClick={() => dispatch({ type: "SHOW_POPUP_FALSE" })}>
+            Cancel
+          </Button>
+          <Button apply={true} onClick={createGroup}>
+            Apply
+          </Button>
         </ButtonWrap>
       </PopupWrap>
     </Container>
@@ -75,7 +120,7 @@ const ButtonWrap = styled.div`
   gap: 2rem;
 `;
 const Button = styled.button`
-  background-color: ${(props) => (props.apply ? "green" : "red")};
+  background-color: ${(props) => (props.apply ? "#3ccb25" : "red")};
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 3rem;

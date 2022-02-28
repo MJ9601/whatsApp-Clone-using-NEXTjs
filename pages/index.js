@@ -1,10 +1,19 @@
 import Head from "next/head";
+import { useEffect } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
 import styled from "styled-components";
 import ChatRoom from "../components/ChatRoom";
 import CreateChatPopUp from "../components/CreateChatPopUp";
 import Sidebar from "../components/Sidebar";
+import { auth } from "../firebase";
+import { useGlobalState } from "../globalStateProvider";
 
 export default function Home() {
+  const [user] = useAuthState(auth);
+  const [{ displayCreatePopup }, dispatch] = useGlobalState();
+  useEffect(() => {
+    user && dispatch({ type: "SET_USER", user: user });
+  }, [user]);
   return (
     <div>
       <Head>
@@ -15,7 +24,7 @@ export default function Home() {
       <Container>
         <Sidebar />
         <ChatRoom />
-        {/* <CreateChatPopUp /> */}
+        {displayCreatePopup && <CreateChatPopUp />}
       </Container>
     </div>
   );
