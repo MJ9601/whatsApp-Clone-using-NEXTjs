@@ -23,7 +23,11 @@ export default function Home() {
       </Head>
       <Container>
         <Sidebar />
-        <ChatRoom />
+        <>
+          <ImgWrap>
+            <img src="https://france-openheartslangua.netdna-ssl.com/wp-content/uploads/2020/10/WhatsApp-Logo.png" />
+          </ImgWrap>
+        </>
         {displayCreatePopup && <CreateChatPopUp />}
       </Container>
     </div>
@@ -35,4 +39,15 @@ const Container = styled.div`
   height: 100vh;
   width: 100%;
   position: relavite;
+`;
+const ImgWrap = styled.div`
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  > img {
+    width: 50%;
+    max-width: 20rem;
+    object-fit: contain;
+  }
 `;

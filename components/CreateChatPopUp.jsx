@@ -14,13 +14,16 @@ import { db } from "../firebase";
 
 const CreateChatPopUp = () => {
   const [{ user }, dispatch] = useGlobalState();
-  const [reciever, setReciever] = useState("m_javad_96@yahoo.com");
+  const [reciever, setReciever] = useState("");
 
   const createGroup = async () => {
-    if (reciever && user.email != reciever) {
+    const chatExistence = await chatAlreadyExists(reciever);
+    if (reciever && !chatExistence && user.email != reciever) {
       await addDoc(collection(db, "chats"), {
         users: [user.email, reciever],
       });
+      setReciever("");
+      dispatch({ type: "SHOW_POPUP_FALSE" });
     }
   };
 
@@ -35,10 +38,9 @@ const CreateChatPopUp = () => {
       chats.push({ ...doc.data(), id: doc.id });
     });
     const remainChats = chats.map((chat) => chat?.users.includes(reciever));
-    console.log(remainChats);
-    console.log(reciever);
+    return remainChats.includes(true);
   };
-  chatAlreadyExists(reciever);
+
   return (
     <Container>
       <PopupWrap>

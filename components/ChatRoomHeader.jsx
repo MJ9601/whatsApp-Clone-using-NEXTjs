@@ -2,16 +2,18 @@ import { AttachFile, MoreVert } from "@mui/icons-material";
 import { Avatar } from "@mui/material";
 import React from "react";
 import styled from "styled-components";
+import { useGlobalState } from "../globalStateProvider";
 
 const ChatRoomHeader = () => {
+  const [{ currentRecipient }, dispatch] = useGlobalState();
   return (
     <Container>
       <div>
-        <Avatar />
+        <Avatar src={currentRecipient?.userImg} />
         <div>
-          <h2>username</h2>
+          <h2>{currentRecipient?.email}</h2>
           <p>
-            last seen: <span>today</span>
+            last seen: <span>{Date(currentRecipient?.lastSeen)}</span>
           </p>
         </div>
       </div>

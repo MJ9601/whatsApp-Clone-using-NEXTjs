@@ -1,17 +1,43 @@
 import { Chat, MoreVert, Search } from "@mui/icons-material";
 import { Avatar } from "@mui/material";
-import React from "react";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import React, { useEffect } from "react";
 import styled from "styled-components";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
 import { useGlobalState } from "../globalStateProvider";
 import GroupCard from "./GroupCard";
 
 const Sidebar = () => {
-  const [{}, dispatch] = useGlobalState();
+  const [{ user, Groups }, dispatch] = useGlobalState();
+
+  useEffect(() => {
+    const existenceChats = async () => {
+      if (user) {
+        const userChatRef = query(
+          collection(db, "chats"),
+          where("users", "array-contains", user?.email)
+        );
+        const chats = [];
+        const querySnapshot = await getDocs(userChatRef);
+        querySnapshot?.forEach((doc) => {
+          chats.push({ ...doc.data(), id: doc.id });
+        });
+        dispatch({ type: "SET_GROUPS", Groups: chats });
+      }
+    };
+    existenceChats();
+  }, [user]);
   return (
     <Container>
       <Header>
-        <Avatar_ onClick={() => auth.signOut()} />
+        <InfoWrap>
+          <Avatar
+            onClick={() => auth.signOut()}
+            src={user?.photoURL}
+            sx={{ cursor: "pointer", ":hover": { opacity: "0.8" } }}
+          />
+          <h5>{user?.email}</h5>
+        </InfoWrap>
         <div>
           <Chat
             sx={{
@@ -43,7 +69,9 @@ const Sidebar = () => {
         Start New Chat
       </H1>
       <GroupCardWrap>
-        <GroupCard />
+        {Groups.map((group) => (
+          <GroupCard key={group.id} data={group?.users} currentGroup={group} />
+        ))}
       </GroupCardWrap>
     </Container>
   );
@@ -63,6 +91,10 @@ const Header = styled.div`
   justify-content: space-between;
   position: sticky;
   top: 0;
+  > div {
+    display: flex;
+  }
+
   &:after {
     content: "";
     position: absolute;
@@ -74,12 +106,6 @@ const Header = styled.div`
   }
 `;
 
-const Avatar_ = styled(Avatar)`
-  cursor: pointer;
-  &:hover {
-    opacity: 0.8;
-  }
-`;
 const SearchBar = styled.div`
   margin-top: 3rem;
   width: 100%;
@@ -113,4 +139,17 @@ const H1 = styled.h1`
 const GroupCardWrap = styled.div`
   width: 100%;
   margin-top: 1.5rem;
+`;
+const InfoWrap = styled.div`
+  width: 80%;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  > h5 {
+    font-size: 1.5rem;
+    width: 70%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
 `;

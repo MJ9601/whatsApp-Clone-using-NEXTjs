@@ -2,6 +2,8 @@ export const initState = {
   displayCreatePopup: false,
   user: null,
   currentGroup: null,
+  currentRecipient: null,
+  Groups: [],
 };
 
 export const reducer = (state, action) => {
@@ -15,6 +17,12 @@ export const reducer = (state, action) => {
       return {
         ...state,
         currentGroup: action.currentGroup,
+        currentRecipient: action.currentRecipient,
+      };
+    case "SET_GROUPS":
+      return {
+        ...state,
+        Groups: action.Groups,
       };
     case "SHOW_POPUP_TRUE":
       return {
