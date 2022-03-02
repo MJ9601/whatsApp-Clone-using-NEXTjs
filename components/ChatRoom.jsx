@@ -1,5 +1,8 @@
-import React from "react";
+import { collection, doc, getDocs, orderBy, query } from "firebase/firestore";
+import { useRouter } from "next/router";
+import React, { useState } from "react";
 import styled from "styled-components";
+import { db } from "../firebase";
 import { useGlobalState } from "../globalStateProvider";
 import ChatRoomHeader from "./ChatRoomHeader";
 import Message from "./Message";
@@ -7,12 +10,35 @@ import MsgSender from "./MsgSender";
 
 const ChatRoom = () => {
   const [{ currentGroup }, dispatch] = useGlobalState();
+  const router = useRouter();
+  const _msgRef = doc(db, "chats", router.query.id);
+  const queryMsgs = query(
+    collection(_msgRef, "messages"),
+    orderBy("timestamp", "asc")
+  );
+  const [messages, setMessages] = useState([]);
+  const getMsgs = async () => {
+    const msgSnapshots = await getDocs(queryMsgs);
+    if (msgSnapshots) {
+      const msgs = msgSnapshots.docs.map((doc) => ({
+        ...doc.data(),
+        timestamp: doc.data()?.timestamp?.toDate().getTime(),
+      }));
+      setMessages(msgs);
+    }
+  };
+  getMsgs();
+
   return (
     <Container>
       <>
         <ChatRoomHeader />
         <MessageWrapper>
           <Message />
+          {messages.map((msg) => (
+            <Message key={msg.id} messageInfo={msg} />
+          ))}
+          <EndTag />
         </MessageWrapper>
         <MsgSender />
       </>
@@ -44,3 +70,4 @@ const ImgWrap = styled.div`
     object-fit: contain;
   }
 `;
+const EndTag = styled.div``;

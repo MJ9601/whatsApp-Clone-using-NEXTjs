@@ -1,14 +1,38 @@
-import { Person } from "@mui/icons-material";
-import React from "react";
+import { InsertEmoticon, Person } from "@mui/icons-material";
+import { collection, doc, setDoc, Timestamp } from "firebase/firestore";
+import { useRouter } from "next/router";
+import React, { useState } from "react";
 import styled from "styled-components";
+import { db } from "../firebase";
+import { useGlobalState } from "../globalStateProvider";
 
 const MsgSender = () => {
+  const [msg, setMsg] = useState("");
+  const [{user}] = useGlobalState()
+  const router = useRouter()
+  const sendMsg = async (e) => {
+    e.preventDefault();
+    if (msg){
+      const _docRef = doc(db, 'chats', router.query.id);
+      const _collectionRef = collection(_docRef, 'messages')
+      const newMsg = await setDoc(_collectionRef, {
+        message: msg,
+        sender: user.email,
+        timestamp: Timestamp()
+      })
+    }
+  };
   return (
     <Container>
-      <Person />
+      <InsertEmoticon />
       <SenderBox>
-        <textarea type="text" as="input" />
-        <input type="submit" style={{ display: "none" }} />
+        <input
+          type="text"
+          as="input"
+          value={msg}
+          onChange={(e) => setMsg(e.target.value)}
+        />
+        <input type="submit" style={{ display: "none" }} onClick={sendMsg} />
       </SenderBox>
     </Container>
   );
@@ -29,7 +53,7 @@ const Container = styled.div`
 `;
 const SenderBox = styled.form`
   width: 88%;
-  > textarea {
+  > input {
     width: 100%;
     border: none;
     background-color: #eee;
